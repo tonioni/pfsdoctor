@@ -1,0 +1,41 @@
+name: pfsdoctor CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Live tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Run live tests
+        run: bash tests/run.sh
+
+  build:
+    name: Build pfsdoctor
+    runs-on: ubuntu-latest
+    container: stefanreinauer/amiga-gcc:gcc-v13.4
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Build
+        run: make
+
+      - name: Upload pfsdoctor
+        uses: actions/upload-artifact@v7
+        with:
+          name: pfsdoctor
+          path: pfsdoctor
+          if-no-files-found: error
